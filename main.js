@@ -1,3 +1,4 @@
+//Anika
 class subjObject {
     constructor(options = {}) {
         Object.assign(this, {}, options);
