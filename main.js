@@ -1,4 +1,4 @@
-//Anika
+// Anika
 class subjObject {
     constructor(options = {}) {
         Object.assign(this, {}, options);
@@ -136,22 +136,16 @@ const INTERTRIAL_INTERVAL = 0.5;
 const ALL_IMG_LIST = RATING_PRACTICE_LIST.concat(RATING_LIST);
 const BIF_FORM = [
     {question: "Making a list",
-    answers: {
-        a: "Getting organized",
-        b: "Writing things down"
-    }},
+    answers: ["Getting organized", "Writing things down"]
+    },
 
     {question: "Reading",
-    answers: {
-        a: "Following lines of print",
-        b: "Gaining knowledge"
-    }},
+    answers: ["Following lines of print", "Gaining knowledge"]
+    },
 
     {question: "Joining the Army",
-    answers: {
-        a: "Helping the Nation's defense",
-        b: "Signing up"
-    }}
+    answers: ["Helping the Nation's defense", "Signing up"]
+    }
 ]
 
 var instr, subj, rating;
@@ -159,7 +153,7 @@ var instr, subj, rating;
 $(document).ready(function() {
     $('#pledge_box').show();
     $('#ratingContainer').hide();
-    $('#questions_box').hide();
+    $('#BIFContainer').hide();
 })
 
 function SUBMIT_PLEDGE_Q() {
@@ -198,11 +192,12 @@ function HALT_EXPERIMENT(explanation) {
 const MAIN_INSTRUCTIONS_DICT = {
     0: [false, false, 'Thank you very much!<br></br><br></br>This study will take about 30 minutes. Please read the instructions carefully, and avoid using the refresh or back buttons.'],
     1: [false, false, 'Please maximize your browser window.'],
-    2: [false, false, 'In the first half of this experiment, you will be given a short prompt to answer.'],
-    3: [false, false, 'In the latter half of this experiment, you will be shown a series of images. Your task is to select how visually pleasing a given image is on a 6-point scale ranging from very visually displeasing to very visually pleasing.'],
-    4: [false, false, "The next page will be a short instruction quiz. (Don't worry, it's very simple!)"],
-    5: [false, SHOW_INSTR_QUESTION, ''],
-    6: [SHOW_CONSENT, false, "Awesome! You can press SPACE to begin.<br></br><br></br>Please maintain focus, avoid distraction, and try not to switch between other tabs and browsers."]
+    2: [false, false, 'The purpose of this experiment is to gauge art appreciation among college students.'],
+    3: [false, false, 'In the first half of this experiment, you will be given a short prompt to answer.'],
+    4: [false, false, 'In the latter half of this experiment, you will be shown a series of images. Your task is to select how visually pleasing a given image is on a 6-point scale ranging from very visually displeasing to very visually pleasing.'],
+    5: [false, false, "The next page will be a short instruction quiz. (Don't worry, it's very simple!)"],
+    6: [false, SHOW_INSTR_QUESTION, ''],
+    7: [SHOW_CONSENT, false, "Awesome! You can press SPACE to begin.<br></br><br></br>Please maintain focus, avoid distraction, and try not to switch between other tabs and browsers."]
 };
 
 function SHOW_INSTR_QUESTION() {
@@ -254,16 +249,16 @@ const RATING_TITLES = [ 'trialNum', 'stimName'];
 function DISTANCE_INDUCTION() {
     var condition = 1;
     if (condition == 1) {
-        $('#dist_ind_1').show()
+        $('#tomorrow').show()
     }
     else if (condition == 2) {
-        $('#dist_ind_2').show()
+        $('#next_year').show()
     }
 }
 
 function SHOW_RATING() {
-    $('#dist_ind_1').hide();
-    $('#dist_ind_2').hide();
+    $('#tomorrow').hide();
+    $('#next_year').hide();
     $('#trialBox').show();
     rating.run();
 }
@@ -297,39 +292,69 @@ function END_RATING() {
         if (e.code == 'Space') {
             $(document).off('keyup');
             $('#cont_instr').hide();
-            BIF();
+            BIF_instr();
         }
     });
 }
 
-function BIF() {
+function BIF_instr() {
     $('#BIF_instr').show();
 }
 
-function BIF_Q1() {
+function BIF() {
     $('#BIF_instr').hide();
-    $('#BIF_Q1').show();
+    $('#BIFContainer').show();
+
+    var counter = 0;
+    var question = $('#question');
+    var currentQ = $('#currentQ')
+    var choice1 = $('#answer0')
+    var choice2 = $('#answer1')
+    addQ();
+    
+    function addQ() {
+        currentQ.text(counter + 1);
+        question.text(BIF_FORM[counter].question)
+        choice1.text(BIF_FORM[counter].answers[0])
+        choice2.text(BIF_FORM[counter].answers[1])
+        $('.BIF_ChoiceButton').mouseup(
+            function(event) {
+                $('.BIF_ChoiceButton').unbind('mouseup');
+                var target = $(event.target).closest('.BIF_ChoiceButton');
+                updateQ();
+            }
+        );
+    }
+    
+    function updateQ() {
+        if(counter != 2){
+            counter++;
+            addQ();
+        }
+        else {
+            $('#BIFContainer').hide();
+            $('#lastQs').show();
+            $('#DBQ1').show();
+        }
+    }
 }
 
-function BIF_Q2() {
-    $('#BIF_Q1').hide();
-    $('#BIF_Q2').show();
+function DBQ2() {
+    $('#DBQ1').hide();
+    $('#DBQ2').show()
 }
 
-function BIF_Q3() {
-    $('#BIF_Q2').hide();
-    $('#BIF_Q3').show();
-}
-
-function DEBRIEFING() {
-    $('#BIF_Q3').hide();
-    $('#questions_box').show();
+function DBQ3() {
+    $('#DBQ2').hide();
+    $('#DBQ3').show();
 }
 
 function SUBMIT_DEBRIEFING_Q(){
-    $('#questions_box').hide();
+    $('#lastQs').hide();
+    $('#DBQ3').hide();
     $('#END').show();
 }
+
 var rating_options = {
     pracTrialN: RATING_PRACTICE_TRIAL_N,
     trialN: RATING_TRIAL_N,
