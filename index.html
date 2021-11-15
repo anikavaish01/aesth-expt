@@ -21,7 +21,9 @@
     <!--INSTRUCTIONS-->
     <div class = 'fixedbox' id = 'instr_box'>
         <p class = 'instructions' id = 'instr_text'></p>
-        <button class = 'button' id = 'next_button' onclick = 'instr.next()'>NEXT</button>
+        <img id='instr_img' src='media/blank.jpg' draggable='false' alt = ''></img>
+        <button class='button' id='next_button' onclick='instr.next()'>NEXT</button>
+        
         <div class = 'pageBox' id = 'consent_box'>
             <div class = 'consent_instr'>Please read the consent form below.</div>
             <div class = 'form_area'>
@@ -45,15 +47,15 @@
     <div class = 'fixedbox' id = 'tomorrow'>
         <div class = 'boldText'>Imagine that you are a student who has just graduated from art school. Because of your promise, you have just been hired by a local art association
              to plan and develop a small art exhibit to be held in your city tomorrow. Please create a 3-step plan for the way in which you might go about
-             preapring for this exhibit.<br></br>
+             preparing for this exhibit.<br></br>
         </div>
         
         <p class='smallDimText'>**We know that this task may be difficult. Don't worry, just try your best.</p>
         
         <ul>
-            <li>Step 1:<textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
-            <li>Step 2:<textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
-            <li>Step 3:<textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
+            <li>Step 1:<br></br><textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
+            <li>Step 2:<br></br><textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
+            <li>Step 3:<br></br><textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
         </ul>
         <button class = 'button' onclick = 'SHOW_RATING()'>SUBMIT</button>
     </div>
@@ -61,15 +63,15 @@
     <div class = 'fixedbox' id = 'next_year'>
         <div class = 'boldText'>Imagine that you are a student who will graduate from art school next year. Because of your promise, you have been hired by an art association to plan 
             and develop a small art exhibit to be held in Grand Fenswick, Andorra next year. Please create a 3-step plan for the way in which you might go about
-            preapring for this exhibit.<br></br>
+            preparing for this exhibit.<br></br>
         </div>
        
         <p class='smallDimText'>**We know that this task may be difficult. Don't worry, just try your best.</p>
        
         <ul>
-            <li>Step 1:<textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
-            <li>Step 2:<textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
-            <li>Step 3:<textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
+            <li>Step 1:<br></br><textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
+            <li>Step 2:<br></br><textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
+            <li>Step 3:<br></br><textarea id = 'present prime' name = 'present prime' rows = "5" cols = "70" placeholder = '*response required*'></textarea></li><br></br>
         </ul>
         <button class = 'button' onclick = 'SHOW_RATING()'>SUBMIT</button>
     </div>
@@ -77,6 +79,7 @@
     </div>
     <!--RATING TASK-->
     <div class='pageBox' id='trialBox'>
+        <div style="text-align: center; margin: 40px;">Is this image visually pleasing to you?</div>
         <div class='testImgPlaceHolder'>
             <img id='testImg' src='stimuli/blank.jpg' alt='Image Error: Please submit the HIT with the code "IMG-ERROR" to receive your payment.' draggable='false'/>
         </div>
@@ -84,14 +87,14 @@
             <img id='bufferImg' src='stimuli/blank.jpg' alt='' />
         </div>
         <div id='ratingContainer' class='ratingContainer'>
-            <div class = 'rating_right'><p class = 'ratingLabels'>Very Visually Pleasing</p></div>
+            <div class = 'rating_right'><p class = 'ratingLabels'>Very much</p></div>
             <div class='ratingButton r6' id='r6'><p class='ratingLabels'>6</p></div>
             <div class='ratingButton r5' id='r5'><p class='ratingLabels'>5</p></div>
             <div class='ratingButton r4' id='r4'><p class='ratingLabels'>4</p></div>
             <div class='ratingButton r3' id='r3'><p class='ratingLabels'>3</p></div>
             <div class='ratingButton r2' id='r2'><p class='ratingLabels'>2</p></div>
             <div class='ratingButton r1' id='r1'><p class='ratingLabels'>1</p></div>
-            <div class = 'rating_left'><p class = 'ratingLabels'>Very Visually Displeasing</p></div> 
+            <div class = 'rating_left'><p class = 'ratingLabels'>Not at all</p></div> 
         </div>
     </div>
 
@@ -146,5 +149,8 @@
     <div class = 'fixedbox' id = 'END'>You are done with this experiment. Please return to the SONA homepage.</div>
 
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
-    <script src='main.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mobile-detect/1.4.3/mobile-detect.min.js'></script>
+    <script src='js/main.js'></script>
+    <script src='js/expt.js'></script>
+    <script src='js/func.js'></script>
 </html>

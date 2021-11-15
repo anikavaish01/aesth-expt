@@ -1,131 +1,26 @@
 // Anika
-class subjObject {
-    constructor(options = {}) {
-        Object.assign(this, {}, options);
 
-    this.dateObj = new Date();
-    }
-}
-
-class trialObject {
-    constructor(options = {}) {
-        Object.assign(this, {
-            pracTrialN: 0,
-            trialN: 0,
-            titles: '',
-            stimPath: 'stimuli/',
-            trialList: [],
-            pracList: [],
-            intertrialInterval: 0.5,
-            updateFunc: false,
-            trialFunc: false,
-            endExptFunc: false,
-            progressInfo: false
-        }, options);
-        this.trialNum = -this.pracTrialN;
-        this.complete = false;
-    }
-
-    run() {
-        var that = this;
-
-        if (this.progressInfo) {
-            this.progress = Math.round( 100 * (this.trialNum+this.pracTrialN) / (this.trialN+this.pracTrialN) );
-        }
-        this.trialNum++;
-        const FORMAL = this.trialNum > 0;
-        const LAST = FORMAL ? this.trialNum == this.trialN : this.trialNum == 0;
-        this.thisTrial = FORMAL ? this.trialList.pop() : this.pracList.pop();
-
-        function findNextTrial(last, formal) {
-            if (last){
-                return false
-            } else {
-                return formal ? that.trialList[that.trialList.length - 1] : that.pracList[that.pracList.length - 1];
-            }
-        }
-        const NEXT_TRIAL = findNextTrial(LAST, FORMAL);
-
-        this.updateFunc(FORMAL, LAST, this.thisTrial, NEXT_TRIAL, this.stimPath);
-
-        const START_STIM = function() {
-            that.trialFunc();
-            that.startTime = Date.now();
-        };
-
-        setTimeout(START_STIM, this.intertrialInterval * 1000);
-    }
-
-    end(resp) {
-        this.response = resp;
-        if (this.trialNum != this.trialN) {
-            this.run();
-        } else {
-            this.complete = true;
-            this.endExptFunc();
-        }
-    }
-
-    rest(box_element, text_element, callback, callback_parameters) {
-        text_element.html('You are done with '+ this.progress + '% of the study!<br /><br />Take a short break now and hit space to continue whenever you are ready.')
-        box_element.show();
-        $(document).keyup(function(e) {
-            if (e.which == 32) {
-                $(document).off('keyup');
-                box_element.hide();
-                if (typeof callback_parameters == 'undefined') {
-                    callback();
-                }
-                else {
-                    callback(callback_parameters);
-                }
-            }
-        });
-    }
-}
-class instrObject {
-    constructor(options = {}) {
-        Object.assign(this, {
-            textBox: false,
-            textElement: false,
-            dict: [],
-            quizConditions: []
-        }, options);
-        this.index = 0;
-        this.quizAttemptN = {};
-        for (var i = 0; i <this.quizConditions.length; i++){
-            this.quizAttemptN[this.quizConditions[i]] = 1;
-        }
-    }
-
-    advance() {
-        this.textElement.html(this.dict[this.index][2]);
-        const PRE_FUNCTION = this.dict[this.index][0];
-        if (PRE_FUNCTION !== false) {
-            PRE_FUNCTION();
-        }
-        this.textBox.show();
-        const POST_FUNCTION = this.dict[this.index][1];
-        if (POST_FUNCTION !== false) {
-            POST_FUNCTION();
-        }
-        this.startTime = Date.now();
-    }
-
-    start() {
-        this.advance();
-    }
-
-    next() {
-        this.textBox.hide();
-        this.index += 1;
-        if (this.index < Object.keys(this.dict).length) {
-            this.advance();
-        }
-    }
-}
-
+// data saving
 const FORMAL = false;
+/*const EXPERIMENT_NAME = 'psych_dist';
+const PLEDGE_CHECK_SCRIPT = 'php/pledge_check.php';
+const PLEDGE_RECORD_SCRIPT = 'php/pledge_record.php';
+const SUBJ_NUM_SCRIPT = 'php/subjNum.php';
+const SAVING_SCRIPT = 'php/save.php';
+const VISIT_FILE = 'visit_' + EXPERIMENT_NAME + '.txt';
+const PLEDGE_FILE = 'pledge_' + EXPERIMENT_NAME + '.txt';
+const SUBJ_NUM_FILE = 'subjNum_' + EXPERIMENT_NAME + '.txt';
+const ATTRITION_FILE = 'attrition_' + EXPERIMENT_NAME + '.txt';
+const RATING_FILE = 'rating_' + EXPERIMENT_NAME + '.txt';
+const BIF_FILE = 'bif_' + EXPERIMENT_NAME + '.txt'
+const SUBJ_FILE = 'subj_' + EXPERIMENT_NAME + '.txt';
+const SAVING_DIR = FORMAL ? '../data/formal':'../data/testing'; */
+
+
+
+
+// stimuli
+const STIM_PATH = 'stimuli/';
 const RATING_PRACTICE_LIST = ['prac'];
 const RATING_PRACTICE_TRIAL_N = RATING_PRACTICE_LIST.length;
 const RATING_LIST = ['AI1', 'AI2', 'AI3', 'AI4', 'AI5'];
@@ -149,12 +44,56 @@ const BIF_FORM = [
 ]
 
 var instr, subj, rating;
+const VIEWPORT_MIN_W = 800;
+const VIEWPORT_MIN_H = 600;
+const INSTR_READING_TIME_MIN = 0.75;
 
 $(document).ready(function() {
+    subj = new subjObject(subj_options);
+    //subj.id = subj.getID(ID_GET_VARIABLE_NAME);
+    subj.saveVisit();
+    if (subj.phone) {
+        HALT_EXPERIMENT('It seems that you are using a touchscreen device or a phone. Please use a laptop or desktop instead.<br /><br />If you believe you have received this message in error, please contact the experimenter at yichiachen@ucla.edu<br /><br />Otherwise, please switch to a laptop or a desktop computer for this experiment.');
+    } else {
+        LOAD_IMG(0, STIM_PATH, ALL_IMG_LIST, function() {});
+        SEARCH_PLEDGE();
+    }
+});
+
+
+const SUBJ_TITLES = [
+    'num',
+    'date',
+    'startTime',
+    'id',
+    'userAgent',
+    'endTime',
+    'duration',
+    'quizAttemptN',
+    'instrReadingTimes',
+    'quickReadingPageN',
+    'hiddenCount',
+    'hiddenDurations',
+    'serious',
+    'problems',
+    'gender',
+    'age',
+    'inView',
+    'viewportW',
+    'viewportH'
+];
+
+function SEARCH_PLEDGE() {
+    /*if (subj.id == FREE_PASS_ID) {
+        $('#pledge-box').show();
+    } else {
+        POST_DATA(PLEDGE_CHECK_SCRIPT, { 'directory_path': SAVING_DIR, 'file_name': PLEDGE_FILE, 'worker_id': subj.id}, CHECK_PLEDGE, AJAX_FAILED);
+    }*/
+
     $('#pledge_box').show();
     $('#ratingContainer').hide();
     $('#BIFContainer').hide();
-})
+}
 
 function SUBMIT_PLEDGE_Q() {
     const RESP = $('input[name = "pledge"]:checked').val();
@@ -174,11 +113,28 @@ function SUBMIT_PLEDGE_Q() {
 
 function ACCEPT_PLEDGE() {
     instr = new instrObject(instr_options);
+    //rating_options['subj'] = subj;
     rating = new trialObject(rating_options);
     instr.start();
 }
 
+function UPDATE_TRIAL_OBJECT_SUBJ_NUM() {
+    if (typeof trial !== 'undefined'){
+        trial.num = subj.num;
+    }
+}
+
+function HANDLE_VISIBILITY_CHANGE() {
+    if (document.hidden) {
+        subj.hiddenCount += 1;
+        subj.hiddenStartTime = Date.now();
+    } else  {
+        subj.hiddenDurations.push((Date.now() - subj.hiddenStartTime)/1000);
+    }
+}
+
 function REFUSE_PLEDGE() {
+    //POST_DATA(PLEDGE_RECORD_SCRIPT, { 'directory_path': SAVING_DIR, 'file_name': PLEDGE_FILE, 'worker_id': subj.id});
     HALT_EXPERIMENT("It appears that you have reported that you will not read the instructions carefully.")
 }
 
@@ -189,16 +145,51 @@ function HALT_EXPERIMENT(explanation) {
     $('#instr_box').show();
 }
 
+function AJAX_FAILED() {
+    HALT_EXPERIMENT('Oops! An error has occurred. Please submit with the code "AJAX_ERR". Sorry!');
+}
+
+var subj_options = {
+    titles: SUBJ_TITLES,
+    viewportMinW: VIEWPORT_MIN_W,
+    viewportMinH: VIEWPORT_MIN_H,
+    subjNumCallback: UPDATE_TRIAL_OBJECT_SUBJ_NUM,
+    /*subjNumScript: SUBJ_NUM_SCRIPT,
+    savingScript: SAVING_SCRIPT,
+    subjNumFile: SUBJ_NUM_FILE,
+    visitFile: VISIT_FILE,
+    attritionFile: ATTRITION_FILE,
+    subjFile: SUBJ_FILE,
+    savingDir: SAVING_DIR,
+    */
+    handleVisibilityChange: HANDLE_VISIBILITY_CHANGE
+};
+
+
+
 const MAIN_INSTRUCTIONS_DICT = {
-    0: [false, false, 'Thank you very much!<br></br><br></br>This study will take about 30 minutes. Please read the instructions carefully, and avoid using the refresh or back buttons.'],
-    1: [false, false, 'Please maximize your browser window.'],
-    2: [false, false, 'The purpose of this experiment is to gauge art appreciation among college students.'],
+    0: [false, false, 'Thank you very much!<br></br><br></br>This study will take about 45 minutes. Please read the instructions carefully, and avoid using the refresh or back buttons.'],
+    1: [SHOW_MAXIMIZE_WINDOW, false, 'Please maximize your browser window.'],
+    2: [HIDE_INSTR_IMG, false, 'The purpose of this experiment is to gauge art appreciation among college students.'],
     3: [false, false, 'In the first half of this experiment, you will be given a short prompt to answer.'],
-    4: [false, false, 'In the latter half of this experiment, you will be shown a series of images. Your task is to select how visually pleasing a given image is on a 6-point scale ranging from very visually displeasing to very visually pleasing.'],
+    4: [false, false, 'In the latter half of this experiment, you will be shown a series of images. Your job is to indicate on a scale of 1 to 6 how visually pleasing the image is to you, with 1 being "not at all" and 6 being "very much".'],
     5: [false, false, "The next page will be a short instruction quiz. (Don't worry, it's very simple!)"],
     6: [false, SHOW_INSTR_QUESTION, ''],
     7: [SHOW_CONSENT, false, "Awesome! You can press SPACE to begin.<br></br><br></br>Please maintain focus, avoid distraction, and try not to switch between other tabs and browsers."]
 };
+
+function SHOW_INSTR_IMG(file_name) {
+    $('#instr_img').attr('src', STIM_PATH + file_name);
+    $('#instr_img').css('display', 'block');
+} 
+
+function HIDE_INSTR_IMG() {
+    $('#instr_img').css('display', 'none');
+}
+
+function SHOW_MAXIMIZE_WINDOW() {
+    SHOW_INSTR_IMG('maximize_window.png');
+}
 
 function SHOW_INSTR_QUESTION() {
     $('#instr_box').hide();
@@ -207,11 +198,12 @@ function SHOW_INSTR_QUESTION() {
 
 function SUBMIT_INSTR_Q() {
     const CHOICE = $('input[name = "quiz"]:checked').val();
-    if (typeof CHOICE == 'undefined') {
+    if (typeof CHOICE === 'undefined') {
         $('#quiz_warning').text('Please make a selection. Thank you!')
     }
     else if (CHOICE != 'option1') {
         instr.quizAttemptN['onlyQ'] += 1;
+        instr.saveReadingTime();
         $('#instr_text').text('You have given an incorrect answer. Please read the instructions again carefully.');
         $('#instr_box').show();
         $('#quiz_box').hide();
@@ -219,6 +211,7 @@ function SUBMIT_INSTR_Q() {
         instr.index = -1;
     }
     else {
+        instr.saveReadingTime();
         instr.next();
         $('#quiz_box').hide();
         SHOW_CONSENT();
@@ -231,7 +224,9 @@ function SHOW_CONSENT() {
     $(document).keyup(function(e) {
         if (e.code == 'Space') {
             $(document).off('keyup');
+            instr.saveReadingTime();
             $('#instr_box').hide();
+            //subj.saveAttrition();
             DISTANCE_INDUCTION();
         }
     });
@@ -244,14 +239,24 @@ var instr_options = {
     quizConditions: ['onlyQ']
 };
 
-const RATING_TITLES = [ 'trialNum', 'stimName'];
+const RATING_TITLES = [
+    'num',
+    'date',
+    'subjStartTime',
+    'trialNum', 
+    'stimName',
+    'inView',
+    'response',
+    'rt'
+];
 
 function DISTANCE_INDUCTION() {
-    var condition = 1;
-    if (condition == 1) {
+    var condition = 0;
+    //var condition = subj.num % 2;
+    if (condition == 0) {
         $('#tomorrow').show()
     }
-    else if (condition == 2) {
+    else if (condition == 1) {
         $('#next_year').show()
     }
 }
@@ -321,6 +326,12 @@ function BIF() {
             function(event) {
                 $('.BIF_ChoiceButton').unbind('mouseup');
                 var target = $(event.target).closest('.BIF_ChoiceButton');
+                if (counter % 2 == 0) {
+                    //option 1 = H, option 2 = L
+                }
+                else {
+                    //option 1 = L, option 2 = L
+                }
                 updateQ();
             }
         );
@@ -369,17 +380,11 @@ var rating_options = {
     progressInfo: true
 }
 
-function RANDOM_INT(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min);
-}
-
-function RANDOMIZE(input) {
+function RANDOMIZE(input_array) {
     var j, temp;
-    var arr = Array.from(input);
+    var arr = Array.from(input_array);
     for (var i = arr.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1))
+        j = Math.floor(Math.random() * (i + 1));
         temp = arr[i];
         arr[i] = arr[j];
         arr[j] = temp;
@@ -387,13 +392,3 @@ function RANDOMIZE(input) {
     return arr;
 }
 
-function CHECK_RESPONSE(input) {
-    if (typeof (input) == 'undefined'){
-        $('#warning_box').text('You must answer this question in order to proceed.')
-        $('#warning_box').show()
-        return false;
-    }
-    else{
-        return true;
-    }
-}
